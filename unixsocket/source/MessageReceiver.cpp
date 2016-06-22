@@ -1,8 +1,8 @@
-/*
+/**
  * MessageReceiver.cpp
  *
  *  Created on: Jun 22, 2016
- *      Author: mateusz
+ *      Author: Mateusz Midor
  */
 
 #include <cassert>
@@ -14,6 +14,10 @@ using namespace unixsocketipc;
 MessageReceiver::MessageReceiver() {
 }
 
+/**
+ * @name    ~MessageReceiver
+ * @brief   Destructor. Clean up buffers and underlying unix socket resources
+ */
 MessageReceiver::~MessageReceiver() {
    // close the sockets
    if (client_socket_fd)
@@ -30,6 +34,14 @@ MessageReceiver::~MessageReceiver() {
    message_buf = nullptr;
 }
 
+/**
+ * @name    init
+ * @brief   Setup the receiver for listening on socket pointed by filename
+ * @param   filename Socket filename
+ * @param   cb Callback function to be called upon message reception
+ * @return  True if successful, False otherwise
+ * @note    This method must be called before "listen"
+ */
 bool MessageReceiver::init(const char *filename, CallbackFunc cb) {
    // remember socket filename
    socket_filename = filename;
@@ -70,6 +82,11 @@ bool MessageReceiver::init(const char *filename, CallbackFunc cb) {
    return true;
 }
 
+/**
+ * @name    listen
+ * @brief   Start listening for incoming connection, then receive messages and call the callback function in a loop
+ * @note    "init" must be called before starting listen
+ */
 void MessageReceiver::listen() {
    if (!server_socket_fd) {
       DEBUG_MSG("%s: not initialized\n", __FUNCTION__);
@@ -116,6 +133,10 @@ void MessageReceiver::listen() {
    DEBUG_MSG("%s: listening done\n", __FUNCTION__);
 }
 
+/**
+ * @name    receive_message
+ * @note    Implementation detail
+ */
 bool MessageReceiver::receive_message(uint32_t &id, char* buf, uint32_t &size ) {
    if (!receive_buffer(reinterpret_cast<char*>(&id), sizeof(id)))
       return false;
@@ -131,6 +152,10 @@ bool MessageReceiver::receive_message(uint32_t &id, char* buf, uint32_t &size ) 
    return true;
 }
 
+/**
+ * @name    receive_buffer
+ * @note    Implementation detail
+ */
 bool MessageReceiver::receive_buffer(char* buf, uint32_t size) {
    auto num_bytes_left = size;
    int num_bytes_received;
@@ -141,8 +166,4 @@ bool MessageReceiver::receive_buffer(char* buf, uint32_t size) {
    }
 
    return (num_bytes_left == 0);
-}
-
-bool MessageReceiver::close() {
-   return true;
 }

@@ -1,8 +1,8 @@
-/*
+/**
  * MessageSender.cpp
  *
  *  Created on: Jun 22, 2016
- *      Author: mateusz
+ *      Author: Mateusz Midor
  */
 
 #include "MessageSender.h"
@@ -13,6 +13,10 @@ using namespace unixsocketipc;
 MessageSender::MessageSender() {
 }
 
+/**
+ * @name    ~MessageSender
+ * @brief   Destructor. Clean up underlying unix socket resources
+ */
 MessageSender::~MessageSender() {
    // close the socket
 
@@ -23,6 +27,14 @@ MessageSender::~MessageSender() {
    unlink(socket_filename.c_str());
 }
 
+/**
+ * @name    init
+ * @brief   Setup the sender for sending messages on socket pointed by filename
+ * @param   filename Socket filename
+ * @return  True if successful, False otherwise
+ * @note    This method must be called before "send"
+ *          The listener must be already running on the same socket filename or it init will fail
+ */
 bool MessageSender::init(const char *filename) {
    // remember socket filename
    socket_filename = filename;
@@ -51,6 +63,13 @@ bool MessageSender::init(const char *filename) {
    return true;
 }
 
+/**
+ * @name    send
+ * @brief   Send a message to the receiver
+ * @param   id Message ID
+ * @param   data Message payload
+ * @param   size Message payload size in bytes
+ */
 void MessageSender::send(uint32_t id, const char *data, uint32_t size) {
    if (!server_socket_fd) {
       DEBUG_MSG("%s: not initialized\n", __FUNCTION__);
@@ -63,6 +82,10 @@ void MessageSender::send(uint32_t id, const char *data, uint32_t size) {
       DEBUG_MSG("%s: send_message failed\n", __FUNCTION__);
 }
 
+/**
+ * @name    send_message
+ * @note    Implementation detail
+ */
 bool MessageSender::send_message(uint32_t id, const char *buf, uint32_t size) {
    if (!send_buffer(reinterpret_cast<char*>(&id), sizeof(id)))
       return false;
@@ -76,6 +99,10 @@ bool MessageSender::send_message(uint32_t id, const char *buf, uint32_t size) {
    return true;
 }
 
+/**
+ * @name    send_buffer
+ * @note    Implementation detail
+ */
 bool MessageSender::send_buffer(const char *buf, uint32_t size) {
    auto bytes_left = size;
    int num_bytes_sent;
@@ -88,6 +115,10 @@ bool MessageSender::send_buffer(const char *buf, uint32_t size) {
    return (bytes_left == 0); // success if all bytes sent
 }
 
+/**
+ * @name    send_stop_listener
+ * @brief   Notify the listener to stop listening
+ */
 void MessageSender::send_stop_listener() {
    send(STOP_LISTENING_MSG_ID, nullptr, 0);
 }

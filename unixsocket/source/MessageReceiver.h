@@ -1,8 +1,8 @@
-/*
+/**
  * MessageReceiver.h
  *
  *  Created on: Jun 22, 2016
- *      Author: mateusz
+ *      Author: Mateusz Midor
  */
 
 #ifndef UNIXSOCKET_SOURCE_MESSAGERECEIVER_H_
@@ -19,6 +19,10 @@
 
 namespace unixsocketipc {
 
+/**
+ * @class   MessageReceiver
+ * @brief   Allows receiving messages that are sent over unix domain socket
+ */
 class MessageReceiver {
    using CallbackFunc = std::function<void(uint32_t, const char*, uint32_t)>;
 
@@ -33,7 +37,6 @@ class MessageReceiver {
 public:
    bool init(const char *filename, CallbackFunc cb);
    void listen();
-   bool close();
 
    MessageReceiver();
    virtual ~MessageReceiver();

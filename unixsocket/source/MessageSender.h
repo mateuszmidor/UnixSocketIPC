@@ -1,8 +1,8 @@
-/*
+/**
  * MessageSender.h
  *
  *  Created on: Jun 22, 2016
- *      Author: mateusz
+ *      Author: Mateusz Midor
  */
 
 #ifndef UNIXSOCKET_SOURCE_MESSAGESENDER_H_
@@ -18,6 +18,10 @@
 
 namespace unixsocketipc {
 
+/**
+ * @class   MessageSender
+ * @brief   Allows sending messages over unix domain socket
+ */
 class MessageSender {
    std::string socket_filename;
    int server_socket_fd = 0;

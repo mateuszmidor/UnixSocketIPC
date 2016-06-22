@@ -1,8 +1,8 @@
-/*
+/**
  * MessageCommon.h
  *
  *  Created on: Jun 22, 2016
- *      Author: mateusz
+ *      Author: Mateusz Midor
  */
 
 #ifndef UNIXSOCKET_SOURCE_MESSAGECOMMON_H_
