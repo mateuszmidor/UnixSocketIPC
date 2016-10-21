@@ -10,9 +10,8 @@
 
 namespace unixsocketipc {
 
-//#define DEBUG_ON
 
-#ifdef DEBUG_ON
+#ifndef NDEBUG
 #define DEBUG_MSG(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_MSG(...)

@@ -25,18 +25,21 @@ namespace unixsocketipc {
  */
 class MessageReceiver {
    using CallbackFunc = std::function<void(uint32_t, const char*, uint32_t)>;
+   using OnClientConnected = std::function<void(void)>;
 
    CallbackFunc callback;
+   OnClientConnected on_client_connected;
    std::string socket_filename;
    int server_socket_fd = 0;
-   int client_socket_fd = 0;
    char* message_buf = nullptr;
 
-   bool receive_message(uint32_t &id, char* buf, uint32_t &size);
-   bool receive_buffer(char* buf, uint32_t size);
+   bool receive_message(int client_socket_fd, uint32_t &id, char* buf, uint32_t &size);
+   bool receive_buffer(int client_socket_fd, char* buf, uint32_t size);
+   bool handle_next_client(int client_socket_fd);
+
 public:
-   bool init(const char *filename, CallbackFunc cb);
-   void listen();
+   bool init(const char *filename, CallbackFunc cb, OnClientConnected oc = OnClientConnected());
+   bool listen();
 
    MessageReceiver();
    virtual ~MessageReceiver();

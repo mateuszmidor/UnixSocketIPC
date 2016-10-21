@@ -1,9 +1,9 @@
-add_library(unixsocket-${ARCH}
+add_library(UnixSocketIpcLib
             source/MessageSender.cpp
             source/MessageReceiver.cpp
 )
 
-target_include_directories(unixsocket-${ARCH}
+target_include_directories(UnixSocketIpcLib
                             PUBLIC 
-                                source
+                                "source"
 )

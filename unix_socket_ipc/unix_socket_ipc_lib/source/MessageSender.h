@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <cstdio>
 #include <string>
+#include <mutex>
 
 namespace unixsocketipc {
 
@@ -25,14 +26,15 @@ namespace unixsocketipc {
 class MessageSender {
    std::string socket_filename;
    int server_socket_fd = 0;
+   std::mutex mtx;
 
    bool send_message(uint32_t id, const char *buf, uint32_t size);
    bool send_buffer(const char *buf, uint32_t size);
 
 public:
    bool init(const char *filename);
-   void send(uint32_t id, const char *data, uint32_t size);
-   void send_stop_listener();
+   bool send(uint32_t id, const char *data, uint32_t size);
+   bool send_stop_listener();
 
    MessageSender();
    virtual ~MessageSender();

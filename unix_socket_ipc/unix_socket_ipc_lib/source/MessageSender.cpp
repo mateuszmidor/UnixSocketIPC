@@ -19,12 +19,8 @@ MessageSender::MessageSender() {
  */
 MessageSender::~MessageSender() {
    // close the socket
-
    if (server_socket_fd)
       ::close(server_socket_fd);
-
-   // remove socket file
-   unlink(socket_filename.c_str());
 }
 
 /**
@@ -33,7 +29,7 @@ MessageSender::~MessageSender() {
  * @param   filename Socket filename
  * @return  True if successful, False otherwise
  * @note    This method must be called before "send"
- *          The listener must be already running on the same socket filename or it init will fail
+ *          The listener must be already running on the same socket filename or init will fail
  */
 bool MessageSender::init(const char *filename) {
    // remember socket filename
@@ -55,6 +51,8 @@ bool MessageSender::init(const char *filename) {
       unsigned length = strlen(remote.sun_path) + sizeof(remote.sun_family);
       if (connect(server_socket_fd, (sockaddr*)&remote, length) == -1) {
          DEBUG_MSG("%s: connect failed\n", __FUNCTION__);
+         ::close(server_socket_fd);
+         server_socket_fd = 0; // not initialized
          return false;
       }
    DEBUG_MSG("%s: done.\n", __FUNCTION__);
@@ -69,17 +67,26 @@ bool MessageSender::init(const char *filename) {
  * @param   id Message ID
  * @param   data Message payload
  * @param   size Message payload size in bytes
+ * @return  True if send was successful, False otherwise
  */
-void MessageSender::send(uint32_t id, const char *data, uint32_t size) {
+bool MessageSender::send(uint32_t id, const char *data, uint32_t size) {
+
+   std::lock_guard<std::mutex> guard(mtx);
    if (!server_socket_fd) {
       DEBUG_MSG("%s: not initialized\n", __FUNCTION__);
-      return;
+      return false;
    }
 
    // send the message
-   DEBUG_MSG ("%s: sending message: id:%d, size:%d, @:%08X\n", __FUNCTION__, id, size, (uintptr_t) data);
-   if (!send_message(id, data, size))
+   DEBUG_MSG ("%s: sending message: id:%d, size:%d\n", __FUNCTION__, id, size);
+   if (!send_message(id, data, size)) {
       DEBUG_MSG("%s: send_message failed\n", __FUNCTION__);
+      if (errno == EPIPE)
+          DEBUG_MSG("%s: errno: EPIPE (connection broken)\n", __FUNCTION__);
+      return false;
+   }
+
+   return true;
 }
 
 /**
@@ -118,7 +125,8 @@ bool MessageSender::send_buffer(const char *buf, uint32_t size) {
 /**
  * @name    send_stop_listener
  * @brief   Notify the listener to stop listening
+ * @return  True if send was successful, False otherwise
  */
-void MessageSender::send_stop_listener() {
-   send(STOP_LISTENING_MSG_ID, nullptr, 0);
+bool MessageSender::send_stop_listener() {
+   return send(STOP_LISTENING_MSG_ID, nullptr, 0);
 }
