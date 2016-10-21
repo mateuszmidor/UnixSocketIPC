@@ -1,8 +1,8 @@
 What is this?
-	A Sender - Receiver IPC communiation based on Unix domain sockets.
-	It works across 32/64bit boundary
+	A Sender - Receiver IPC communiation based on Unix domain sockets,
+		can be used for inter 32-64bit arch communication.
 	
 Steps to run the demo:
 	1. Run "cmake .. && make && make install" inside build/
-	2. Run "reader-32bit", run "writer-64bit" in separate console
+	2. Run "reader", run "writer" in separate console
 	3. See the two communicate. 
